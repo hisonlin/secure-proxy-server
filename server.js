@@ -22,6 +22,10 @@ app.use('/api', createProxyMiddleware({
     },
 }));
 
+app.get('/', (req, res) => {
+    res.send('Proxy server is running');
+});
+
 // Start the server
 const PORT = 8080;
 app.listen(PORT, () => {
