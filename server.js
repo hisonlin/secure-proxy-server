@@ -27,11 +27,12 @@ app.use('/api', createProxyMiddleware({
     },
 }));
 
-app.use('/static/images', createProxyMiddleware({
-    target: 'http://api-lulu.hibitbyte.com',
+// Proxy setup specifically for images
+app.use('/images', createProxyMiddleware({
+    target: 'http://api-lulu.hibitbyte.com', // Image target
     changeOrigin: true,
     pathRewrite: {
-        '^/static/images': '/static/images', // Ensure paths are correctly rewritten
+        '^/images': '/static/images', // Rewrite /images path to match API's static images path
     },
 }));
 
