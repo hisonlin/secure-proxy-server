@@ -27,6 +27,15 @@ app.use('/api', createProxyMiddleware({
     },
 }));
 
+app.use('/static/images', createProxyMiddleware({
+    target: 'http://api-lulu.hibitbyte.com',
+    changeOrigin: true,
+    pathRewrite: {
+        '^/static/images': '/static/images', // Ensure paths are correctly rewritten
+    },
+}));
+
+
 app.get('/', (req, res) => {
     res.send('Proxy server is running');
 });
