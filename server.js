@@ -6,7 +6,12 @@ const cors = require('cors');
 const app = express();
 
 // Enable CORS to allow requests from your frontend
-app.use(cors());
+app.use(cors({
+    origin: '*', // or specify your frontend URL
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
+  
 
 // Proxy setup
 app.use('/api', createProxyMiddleware({
