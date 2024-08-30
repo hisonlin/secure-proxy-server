@@ -35,10 +35,10 @@ app.use('/images', createProxyMiddleware({
         '^/images': '/static/images', // Rewrite /images path to match API's static images path
     },
     onProxyReq: (proxyReq, req, res) => {
-        // Add API key as a header
-        proxyReq.setHeader('Authorization', 'Bearer G6wXG76aYN53Gn37zchRsl%2BZx%2B8fsd%2BB2WBpaDx2K9rk6KpfEtluSRD0z5b59xC7iD8/FaxoJeuPk4fdVNt3Fw==');
-        // If your API key is not a Bearer token, adjust accordingly
-        // Example: proxyReq.setHeader('X-API-Key', process.env.API_KEY);
+        // Modify the URL to include the API key as a query parameter
+        const url = new URL(proxyReq.path, 'http://api-lulu.hibitbyte.com');
+        url.searchParams.append('mykey', 'G6wXG76aYN53Gn37zchRsl%2BZx%2B8fsd%2BB2WBpaDx2K9rk6KpfEtluSRD0z5b59xC7iD8/FaxoJeuPk4fdVNt3Fw=='); // Append the API key
+        proxyReq.path = url.pathname + url.search;
     },
 }));
 
