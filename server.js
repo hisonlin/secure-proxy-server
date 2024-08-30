@@ -34,12 +34,6 @@ app.use('/images', createProxyMiddleware({
     pathRewrite: {
         '^/images': '/static/images', // Rewrite /images path to match API's static images path
     },
-    onProxyReq: (proxyReq, req, res) => {
-        // Modify the URL to include the API key as a query parameter
-        const url = new URL(proxyReq.path, 'http://api-lulu.hibitbyte.com');
-        url.searchParams.append('mykey', 'G6wXG76aYN53Gn37zchRsl%2BZx%2B8fsd%2BB2WBpaDx2K9rk6KpfEtluSRD0z5b59xC7iD8/FaxoJeuPk4fdVNt3Fw=='); // Append the API key
-        proxyReq.path = url.pathname + url.search;
-    },
 }));
 
 
