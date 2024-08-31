@@ -50,6 +50,19 @@ app.get('/proxy-image', async (req, res) => {
     }
 });
 
+// Proxy route to serve images securely
+app.get('/proxy-color-image', async (req, res) => {
+    const { imageUrl } = req.query;
+    try {
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        res.set('Content-Type', response.headers['content-type']);
+        res.send(response.data);
+    } catch (error) {
+        console.error('Error fetching image:', error.message);
+        res.status(500).send('Failed to fetch image');
+    }
+});
+
 app.get('/api/filter', async (req, res) => {
 
     try {
