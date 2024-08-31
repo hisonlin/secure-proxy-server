@@ -1,35 +1,61 @@
-// server.js
+require('dotenv').config();
 const express = require('express');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const axios = require('axios');
 const cors = require('cors');
-
 const app = express();
 
-// Enable CORS to allow requests from your frontend
+const APIKEY = process.env.API_KEY;
+const productURL = process.env.PRODUCT_API_URL;
+
+// Enable CORS for all routes
 app.use(cors());
-  
 
-// Proxy setup
-app.use('/api', createProxyMiddleware({
-    target: 'http://api-lulu.hibitbyte.com', // Replace with your HTTP-only API
-    changeOrigin: true,
-    secure: false, // Disable SSL verification for the target
-    pathRewrite: {
-        '^/api': '', // Remove '/api' prefix when forwarding to the target
-    },
-    onProxyReq: (proxyReq, req, res) => {
-        // Modify the proxy request headers if necessary
-        proxyReq.setHeader('Custom-Header', 'value');
-    },
-}));
+app.use(express.json()); // Middleware to parse JSON requests
 
+// Define a route to fetch products
+app.post('/api/fetch-products', async (req, res) => {
+    const { sortingID, page, bodyData } = req.body; // Get data from the frontend request
 
-app.get('/', (req, res) => {
-    res.send('Proxy server is running');
+    try {
+        // Fetch data from the API
+        const apiResponse = await axios.post(
+            `${productURL}sortingId=${sortingID}&page=${page}&mykey=${APIKEY}`,
+            bodyData
+        );
+
+        // Send the response back to the frontend
+        res.json(apiResponse.data);
+    } catch (error) {
+        // Improved error logging for better diagnosis
+        console.error('Error fetching products:', error.message);
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+        }
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
 });
 
-// Start the server
-const PORT = 8080;
+// Proxy route to serve images securely
+app.get('/proxy-image', async (req, res) => {
+    const { imageUrl } = req.query;
+    try {
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        res.set('Content-Type', response.headers['content-type']);
+        res.send(response.data);
+    } catch (error) {
+        console.error('Error fetching image:', error.message);
+        res.status(500).send('Failed to fetch image');
+    }
+});
+
+// Test route to verify server is running
+app.get('/', (req, res) => {
+    res.send('Server is running');
+});
+
+// Start the server on a specific port
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Proxy server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
