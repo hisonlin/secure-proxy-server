@@ -69,8 +69,8 @@ app.get('/api/filter', async (req, res) => {
     }
 });
 
-app.get('/api/fetch-one-product', async (req, res) => {
-    const {productId} = req.body;
+app.post('/api/fetch-one-product', async (req, res) => {
+    const { productId } = req.body;
 
     try {
         const apiResponse = await axios.get(
@@ -86,8 +86,7 @@ app.get('/api/fetch-one-product', async (req, res) => {
         }
         res.status(500).json({ error: 'Failed to fetch products' });
     }
-}
-);
+});
 
 // Test route to verify server is running
 app.get('/', (req, res) => {
