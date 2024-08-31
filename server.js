@@ -6,6 +6,7 @@ const app = express();
 
 const APIKEY = process.env.API_KEY;
 const productURL = process.env.PRODUCT_API_URL;
+const filterURL = process.env.FILTER_API_URL;
 
 // Enable CORS for all routes
 app.use(cors());
@@ -49,13 +50,31 @@ app.get('/proxy-image', async (req, res) => {
     }
 });
 
+app.get('/api/filter', async (req, res) => {
+
+    try {
+        const apiResponse = await axios.get(
+            `${filterURL}mykey=${APIKEY}`
+        );
+
+        res.json(apiResponse.data);
+    } catch (error) {
+        console.error('Error fetching products:', error.message);
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+        }
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
+});
+
 // Test route to verify server is running
 app.get('/', (req, res) => {
     res.send('Server is running');
 });
 
 // Start the server on a specific port
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
