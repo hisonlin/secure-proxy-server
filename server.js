@@ -7,6 +7,7 @@ const app = express();
 const APIKEY = process.env.API_KEY;
 const productURL = process.env.PRODUCT_API_URL;
 const filterURL = process.env.FILTER_API_URL;
+const oneProductURL = process.env.ONE_PRODUCT_API_URL;
 
 // Enable CORS for all routes
 app.use(cors());
@@ -67,6 +68,26 @@ app.get('/api/filter', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
+
+app.get('/api/fetch-one-product', async (req, res) => {
+    const {productId} = req.body;
+
+    try {
+        const apiResponse = await axios.get(
+            `${oneProductURL}${productId}?&mykey=${APIKEY}`
+        );
+
+        res.json(apiResponse.data);
+    } catch (error) {
+        console.error('Error fetching products:', error.message);
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+        }
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
+}
+);
 
 // Test route to verify server is running
 app.get('/', (req, res) => {
