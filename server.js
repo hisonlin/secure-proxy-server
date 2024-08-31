@@ -6,11 +6,7 @@ const cors = require('cors');
 const app = express();
 
 // Enable CORS to allow requests from your frontend
-app.use(cors({
-    origin: '*', // or specify your frontend URL
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: ['Content-Type', 'Authorization']
-  }));
+app.use(cors());
   
 
 // Proxy setup
@@ -24,15 +20,6 @@ app.use('/api', createProxyMiddleware({
     onProxyReq: (proxyReq, req, res) => {
         // Modify the proxy request headers if necessary
         proxyReq.setHeader('Custom-Header', 'value');
-    },
-}));
-
-// Proxy setup specifically for images
-app.use('/images', createProxyMiddleware({
-    target: 'http://api-lulu.hibitbyte.com', // Image target
-    changeOrigin: true,
-    pathRewrite: {
-        '^/images': '/static/images', // Rewrite /images path to match API's static images path
     },
 }));
 
