@@ -74,7 +74,7 @@ app.get('/api/fetch-one-product', async (req, res) => {
 
     try {
         const apiResponse = await axios.get(
-            `${oneProductURL}${productId}?&mykey=${APIKEY}`
+            `${oneProductURL}${productId}?mykey=${APIKEY}`
         );
 
         res.json(apiResponse.data);
