@@ -46,7 +46,6 @@ app.post('/api/fetch-products', async (req, res) => {
             `${productURL}sortingId=${sortingID}&page=${page}`,
             bodyData
         );
-
         // Send the response back to the frontend
         res.json(apiResponse.data);
     } catch (error) {
