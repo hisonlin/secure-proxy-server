@@ -4,7 +4,9 @@ const axios = require('axios');
 const cors = require('cors');
 const app = express();
 
-const APIKEYS = [process.env.API_KEY, process.env.BROOKE_API_KEY, process.env.KAELEY_API_KEY];
+const APIKEY = process.env.API_KEY;
+const BROOKE_API_KEY = process.env.BROOKE_API_KEY;
+const KAELEY_API_KEY = process.env.KAELEY_API_KEY;
 const productURL = process.env.PRODUCT_API_URL;
 const filterURL = process.env.FILTER_API_URL;
 const oneProductURL = process.env.ONE_PRODUCT_API_URL;
@@ -13,39 +15,18 @@ const oneProductURL = process.env.ONE_PRODUCT_API_URL;
 app.use(cors());
 
 app.use(express.json()); // Middleware to parse JSON requests
-const fetchWithAPIKey = async (url, bodyData, method = 'post') => {
-    for (const APIKEY of APIKEYS) {
-        try {
-            if (method === 'post') {
-                // POST request
-                return await axios.post(`${url}&mykey=${APIKEY}`, bodyData);
-            } else {
-                // GET request, ensure query parameters are appended correctly
-                const fullUrl = url.includes('?') ? `${url}&mykey=${APIKEY}` : `${url}?mykey=${APIKEY}`;
-                return await axios.get(fullUrl);
-            }
-        } catch (error) {
-            if (error.response && error.response.status === 401) {
-                console.log(`API key ${APIKEY} failed. Trying next key...`);
-            } else {
-                throw error;
-            }
-        }
-    }
-    throw new Error('All API keys have failed or exceeded their limits.');
-};
-
 
 // Define a route to fetch products
 app.post('/api/fetch-products', async (req, res) => {
     const { sortingID, page, bodyData } = req.body; // Get data from the frontend request
 
     try {
-        // Try fetching data with fallback to different API keys
-        const apiResponse = await fetchWithAPIKey(
-            `${productURL}sortingId=${sortingID}&page=${page}`,
+        // Fetch data from the API
+        const apiResponse = await axios.post(
+            `${productURL}sortingId=${sortingID}&page=${page}&mykey=${BROOKE_API_KEY}`,
             bodyData
         );
+
         // Send the response back to the frontend
         res.json(apiResponse.data);
     } catch (error) {
@@ -72,43 +53,40 @@ app.get('/proxy-image', async (req, res) => {
     }
 });
 
-// Route to fetch filter data
 app.get('/api/filter', async (req, res) => {
-    try {
-        // Try fetching data with fallback to different API keys
-        const apiResponse = await fetchWithAPIKey(`${filterURL}`, null, 'get');
-
-        res.json(apiResponse.data);
-    } catch (error) {
-        console.error('Error fetching filter data:', error.message);
-        if (error.response) {
-            console.error('Response data:', error.response.data);
-            console.error('Response status:', error.response.status);
-        }
-        res.status(500).json({ error: 'Failed to fetch filter data' });
-    }
-});
-
-// Route to fetch a single product
-app.post('/api/fetch-one-product', async (req, res) => {
-    const { productId } = req.body;
 
     try {
-        // Try fetching data with fallback to different API keys
-        const apiResponse = await fetchWithAPIKey(
-            `${oneProductURL}${productId}`, // Make sure productId is appended here
-            null,
-            'get'
+        const apiResponse = await axios.get(
+            `${filterURL}mykey=${BROOKE_API_KEY}`
         );
 
         res.json(apiResponse.data);
     } catch (error) {
-        console.error('Error fetching one product:', error.message);
+        console.error('Error fetching products:', error.message);
         if (error.response) {
             console.error('Response data:', error.response.data);
             console.error('Response status:', error.response.status);
         }
-        res.status(500).json({ error: 'Failed to fetch product' });
+        res.status(500).json({ error: 'Failed to fetch products' });
+    }
+});
+
+app.post('/api/fetch-one-product', async (req, res) => {
+    const { productId } = req.body;
+
+    try {
+        const apiResponse = await axios.get(
+            `${oneProductURL}${productId}?mykey=${BROOKE_API_KEY}`
+        );
+
+        res.json(apiResponse.data);
+    } catch (error) {
+        console.error('Error fetching products:', error.message);
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+        }
+        res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
 
